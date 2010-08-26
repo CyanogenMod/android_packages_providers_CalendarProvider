@@ -3373,6 +3373,7 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
      * @param db the database
      */
     private void scheduleNextAlarmLocked(SQLiteDatabase db) {
+        Time time = new Time();
         AlarmManager alarmManager = getAlarmManager();
         if (alarmManager == null) {
             if (Log.isLoggable(TAG, Log.ERROR)) {
@@ -3386,7 +3387,6 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
         final long end = start + (24 * 60 * 60 * 1000);
         ContentResolver cr = getContext().getContentResolver();
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Time time = new Time();
             time.set(start);
             String startTimeStr = time.format(" %a, %b %d, %Y %I:%M%P");
             Log.d(TAG, "runScheduleNextAlarm() start search: " + startTimeStr);
@@ -3432,29 +3432,53 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
         // will be untyped and sqlite3's manifest typing will not convert the
         // string query parameter to an int in myAlarmtime>=?, so the comparison
         // will fail.  This could be simplified if bug 2464440 is resolved.
-        String query = "SELECT begin-(minutes*60000) AS myAlarmTime,"
+
+        time.setToNow();
+        time.normalize(false);
+        long localOffset = time.gmtoff * 1000;
+
+        String allDayOffset = " -(" + localOffset + ") ";
+        String subQueryPrefix = "SELECT begin";
+        String subQuerySuffix = "-(minutes*60000) AS myAlarmTime,"
                 + " Instances.event_id AS eventId, begin, end,"
                 + " title, allDay, method, minutes"
                 + " FROM Instances INNER JOIN Events"
                 + " ON (Events._id = Instances.event_id)"
                 + " INNER JOIN Reminders"
                 + " ON (Instances.event_id = Reminders.event_id)"
-                + " WHERE method=" + Reminders.METHOD_ALERT
-                + " AND myAlarmTime>=CAST(? AS INT)"
+                + " WHERE myAlarmTime>=CAST(? AS INT)"
                 + " AND myAlarmTime<=CAST(? AS INT)"
                 + " AND end>=?"
-                + " AND 0=(SELECT count(*) from CalendarAlerts CA"
-                + " where CA.event_id=Instances.event_id AND CA.begin=Instances.begin"
-                + " AND CA.alarmTime=myAlarmTime)"
+                + " AND method=" + Reminders.METHOD_ALERT;
+
+        // we query separately for all day events to convert to local time from UTC
+        // we need to /subtract/ the offset to get the correct resulting local time
+        String allDayQuery = subQueryPrefix + allDayOffset + subQuerySuffix
+                + " AND allDay=1";
+        String nonAllDayQuery = subQueryPrefix + subQuerySuffix
+                + " AND allDay=0";
+
+        // we use UNION ALL because we are guaranteed to have no dupes between
+        // the two queries, and it is less expensive
+        String query = "SELECT *"
+                + " FROM (" + allDayQuery + " UNION ALL " + nonAllDayQuery + ")"
+                // avoid rescheduling existing alarms
+                + " WHERE 0=(SELECT count(*) from CalendarAlerts CA"
+                         + " WHERE CA.event_id=eventId"
+                         + " AND CA.begin=begin"
+                         + " AND CA.alarmTime=myAlarmTime)"
                 + " ORDER BY myAlarmTime,begin,title";
-        String queryParams[] = new String[] {String.valueOf(start), String.valueOf(nextAlarmTime),
-                String.valueOf(currentMillis)};
+
+        String queryParams[] = new String[] { String.valueOf(start), String.valueOf(nextAlarmTime),
+                String.valueOf(currentMillis), String.valueOf(start), String.valueOf(nextAlarmTime),
+                String.valueOf(currentMillis) };
 
         String instancesTimezone = mCalendarCache.readTimezoneInstances();
         boolean isHomeTimezone = mCalendarCache.readTimezoneType().equals(
                 CalendarCache.TIMEZONE_TYPE_HOME);
-        acquireInstanceRangeLocked(start,
-                end,
+        // expand this range by a day on either end to account for all day events
+        acquireInstanceRangeLocked(start - DateUtils.DAY_IN_MILLIS,
+                end + DateUtils.DAY_IN_MILLIS,
                 false /* don't use minimum expansion windows */,
                 false /* do not force Instances deletion and expansion */,
                 instancesTimezone,
@@ -3470,7 +3494,6 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
             final int minutesIndex = cursor.getColumnIndex(Reminders.MINUTES);
 
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Time time = new Time();
                 time.set(nextAlarmTime);
                 String alarmTimeStr = time.format(" %a, %b %d, %Y %I:%M%P");
                 Log.d(TAG, "cursor results: " + cursor.getCount() + " nextAlarmTime: "
@@ -3492,7 +3515,6 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
                 final long endTime = cursor.getLong(endIndex);
 
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Time time = new Time();
                     time.set(alarmTime);
                     String schedTime = time.format(" %a, %b %d, %Y %I:%M%P");
                     time.set(startTime);
