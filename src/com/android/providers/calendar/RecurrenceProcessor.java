@@ -180,6 +180,8 @@ public class RecurrenceProcessor
     {
         boolean found;
         int freq = r.freq;
+        
+        Log.d(TAG, "RRULE := " + r.toString());
 
         if (EventRecurrence.MONTHLY >= freq) {
             // BYMONTH
@@ -263,9 +265,82 @@ byday:
                 return 8;
             }
         }
-        // BYSETPOS -- we might have to do this by postprocessing
-        // the list
+        
+        /* BYSETPOS -- we might have to do this by postprocessing the list
+         * ref: http://www.kanzaki.com/docs/ical/rrule.html
+         * ref: http://www.ietf.org/rfc/rfc2445.txt
+         * 
+         * We are only supporting one case here:
+         *   FREQ=MONTHLY;INTERVAL=1;WKST=MO;BYDAY=MO,TU,WE,TH,FR;BYSETPOS=-1
+         *   Monthly, Once, By a given day(s) of the week, last instance of the month
+         * 
+         * All other scenarios will need to be developed by someone else
+         */
+bysetpos:
+        if (r.bysetposCount == 1 ) {
+            // only supporting "last of"
+            if (EventRecurrence.MONTHLY < freq) {
+                Log.w(TAG, "BYSETPOS not supported in given RRULE configuration (not FREQ=MONTHLY)");
+                Log.w(TAG, "RRULE := " + r.toString());
+                break bysetpos;
+            }
+            if (r.bydayCount < 1) {
+                Log.w(TAG, "BYSETPOS not supported in given RRULE configuration (missing BYDAY)");
+                Log.w(TAG, "RRULE := " + r.toString());
+                break bysetpos;
+            }
+            if (r.bysetpos[0] != -1) {
+                Log.w(TAG, "BYSETPOS not supported in given RRULE configuration (BYSETPOS is not -1)");
+                Log.w(TAG, "RRULE := " + r.toString());
+                break bysetpos;
+            }
 
+            java.util.Calendar calLast=java.util.Calendar.getInstance();
+            calLast.set(iterator.year, iterator.month, 1);
+
+            int a[] = r.byday;
+            int N = r.bydayCount;
+            for (int i=0; i<N; i++) {
+                java.util.Calendar calTmp=java.util.Calendar.getInstance();
+                calTmp.set(iterator.year, iterator.month, 1);
+                switch (a[i]) {
+                    case EventRecurrence.SU:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SUNDAY);
+                        break;
+                    case EventRecurrence.MO:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.MONDAY);
+                        break;
+                    case EventRecurrence.TU:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.TUESDAY);
+                        break;
+                    case EventRecurrence.WE:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.WEDNESDAY);
+                        break;
+                    case EventRecurrence.TH:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.THURSDAY);
+                        break;
+                    case EventRecurrence.FR:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.FRIDAY);
+                        break;
+                    case EventRecurrence.SA:
+                        calTmp.set(java.util.Calendar.DAY_OF_WEEK, java.util.Calendar.SATURDAY);
+                        break;
+                    default:
+                        break bysetpos;
+                }
+                calTmp.set(java.util.Calendar.DAY_OF_WEEK_IN_MONTH, -1);
+                if (calTmp.after(calLast)) {
+                    calLast=calTmp;
+                }
+            }
+            Log.d(TAG, "BYSETPOSlast Last day of the month: " + calLast.getTime().toString());
+            
+            if (iterator.monthDay != calLast.get(java.util.Calendar.DAY_OF_MONTH)) {
+                return 9;
+            }
+        }
+
+        
         // if we got to here, we didn't filter it out
         return 0;
     }
