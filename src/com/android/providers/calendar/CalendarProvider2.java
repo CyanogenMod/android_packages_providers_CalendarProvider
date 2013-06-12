@@ -30,10 +30,12 @@ import android.content.IntentFilter;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
+import android.database.MemoryCursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Handler;
 import android.os.Message;
 import android.os.Process;
@@ -813,6 +815,20 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
 
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
+            String sortOrder) {
+        Cursor c = queryInternal(uri, projection, selection, selectionArgs, sortOrder);
+
+        if (getContext().isPrivacyGuardEnabled()) {
+            Log.d(TAG, "Calendar query from application using privacy guard! pid=" + Binder.getCallingPid());
+            MemoryCursor mc = new MemoryCursor(null, c.getColumnNames());
+            c.close();
+            return mc;
+        }
+
+        return c;
+    }
+
+    private Cursor queryInternal(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "query uri - " + uri);
@@ -2074,6 +2090,9 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "insertInTransaction: " + uri);
         }
+        if (getContext().isPrivacyGuardEnabled()) {
+            return null;
+        }
         validateUriParameters(uri.getQueryParameterNames());
         final int match = sUriMatcher.match(uri);
         verifyTransactionAllowed(TRANSACTION_INSERT, uri, values, callerIsSyncAdapter, match,
@@ -2998,6 +3017,9 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "deleteInTransaction: " + uri);
         }
+        if (getContext().isPrivacyGuardEnabled()) {
+            return 0;
+        }
         validateUriParameters(uri.getQueryParameterNames());
         final int match = sUriMatcher.match(uri);
         verifyTransactionAllowed(TRANSACTION_DELETE, uri, null, callerIsSyncAdapter, match,
@@ -3855,6 +3877,9 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
             String[] selectionArgs, boolean callerIsSyncAdapter) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "updateInTransaction: " + uri);
+        }
+        if (getContext().isPrivacyGuardEnabled()) {
+            return 0;
         }
         validateUriParameters(uri.getQueryParameterNames());
         final int match = sUriMatcher.match(uri);
