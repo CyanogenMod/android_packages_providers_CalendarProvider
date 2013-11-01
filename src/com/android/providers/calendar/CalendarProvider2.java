@@ -823,6 +823,16 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
     @Override
     public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs,
             String sortOrder) {
+        final long identity = Binder.clearCallingIdentity();
+        try {
+            return queryInternal(uri, projection, selection, selectionArgs, sortOrder);
+        } finally {
+            Binder.restoreCallingIdentity(identity);
+        }
+    }
+
+    private Cursor queryInternal(Uri uri, String[] projection, String selection,
+            String[] selectionArgs, String sortOrder) {
         if (Log.isLoggable(TAG, Log.VERBOSE)) {
             Log.v(TAG, "query uri - " + uri);
         }
@@ -1844,9 +1854,13 @@ public class CalendarProvider2 extends SQLiteContentProvider implements OnAccoun
                     values.put(Events.STATUS, Events.STATUS_TENTATIVE);
                 }
 
-                // We're converting from recurring to non-recurring.  Clear out RRULE and replace
-                // DURATION with DTEND.
+                // We're converting from recurring to non-recurring.
+                // Clear out RRULE, RDATE, EXRULE & EXDATE
+                // Replace DURATION with DTEND.
                 values.remove(Events.RRULE);
+                values.remove(Events.RDATE);
+                values.remove(Events.EXRULE);
+                values.remove(Events.EXDATE);
 
                 Duration duration = new Duration();
                 String durationStr = values.getAsString(Events.DURATION);
