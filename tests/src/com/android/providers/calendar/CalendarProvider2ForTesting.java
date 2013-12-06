@@ -37,7 +37,11 @@ public class CalendarProvider2ForTesting extends CalendarProvider2 {
     @Override
     protected void initCalendarAlarm() {
         mCalendarAlarm = new MockCalendarAlarmManager(getContext());
-        mCalendarAlarm.getScheduleNextAlarmWakeLock();
+    }
+
+    @Override
+    protected boolean shouldSyncFor(Uri uri) {
+        return true;
     }
 
     @Override
