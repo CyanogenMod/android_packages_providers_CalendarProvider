@@ -16,6 +16,7 @@
 -->
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="calendar_storage">Kalennerspäicher</string>
+  <string name="upgrade_msg">D\'Kalennerdatebank gëtt op den neiste Stand gesat.</string>
   <string name="calendar_default_name">Standard</string>
   <string name="calendar_info">Kalennerinfo</string>
   <string name="calendar_info_no_calendars">Keng Kalenneren</string>
