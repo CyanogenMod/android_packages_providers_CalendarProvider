@@ -22,5 +22,6 @@
   <string name="calendar_info_no_calendars">Keng Kalenneren</string>
   <string name="provider_label">Kalenner</string>
   <string name="debug_tool_delete_button">Elo läschen</string>
+  <string name="debug_tool_start_button">Start</string>
   <string name="debug_tool_email_sender_picker">Wiel e Programm aus fir däi Fichier ze schécken</string>
 </resources>

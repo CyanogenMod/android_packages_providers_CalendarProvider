@@ -17,7 +17,7 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
   <string name="calendar_storage">بیرگەی ڕۆژمێر</string>
   <string name="upgrade_msg">نوێکردنەوەی بنکەدراوی ڕۆژژمێر.</string>
-  <string name="calendar_default_name">بنه‌ڕه‌ت</string>
+  <string name="calendar_default_name">بنێڕه‌ت</string>
   <string name="calendar_info">زانیاری ڕۆژژمێر</string>
   <string name="calendar_info_error">هەڵە</string>
   <string name="calendar_info_no_calendars">بێ ساڵنامە</string>
