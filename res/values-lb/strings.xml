@@ -26,7 +26,7 @@
   <string name="provider_label">Kalenner</string>
   <string name="debug_tool_delete_button">Elo läschen</string>
   <string name="debug_tool_start_button">Start</string>
-  <string name="debug_tool_message">Du bass am Gaang 1) eng Kopie vun denger Kalennerdatebank op d\'SD-Kaart oder den USB-Späicher ze maachen, dee vun all App ka gelies ginn, an 2) de Fichier per E-Mail ze verschécken. Denk drun de Fichier direkt ze läschen soubal e kopéiert oder per E-Mail verschéckt gouf.</string>
+  <string name="debug_tool_message">Du bass am Gaang 1) eng Kopie vun denger Kalennerdatebank op d\'SD-Kaart oder den USB-Späicher ze maachen, dee vun all App ka gelies ginn, an 2) de Fichier per E-Mail ze verschécken. Denk drun de Fichier direkt ze läsche soubal e kopéiert oder per E-Mail verschéckt gouf.</string>
   <string name="debug_tool_email_sender_picker">Wiel e Programm aus fir däi Fichier ze schécken</string>
   <string name="debug_tool_email_subject">Kalenner-DB ugehaangen</string>
   <string name="debug_tool_email_body">Un dëser E-Mail hänkt meng Kalennerdatebank mat allen Terminer a perséinlechen Informatiounen. W.e.g. mat Virsiicht behandelen.</string>
