@@ -18,14 +18,18 @@
   <!-- Title for the Calendar Storage process. -->
   <!-- [CHAR LIMIT=NONE] Boot message while upgrading calendar. -->
   <!-- Temporary Calendar name to use before we have the calendar name from the server -->
+  <string name="calendar_default_name">Па змаўчаньні</string>
   <!-- Caption on secret calendar info -->
   <!-- Error message for secret calendar info -->
+  <string name="calendar_info_error">Памылка</string>
   <!-- No calendars message for secret calendar info -->
   <!-- Event count message for secret calendar info -->
   <!-- Event and dirty event count message for secret calendar info -->
   <!-- What to show in messaging that refers to this provider, e.g. AccountSyncSettings -->
+  <string name="provider_label">Каляндар</string>
   <!-- Debug tool - dialog - delete file now [CHAR LIMIT=NONE] -->
   <!-- Debug tool - dialog - start copying [CHAR LIMIT=NONE] -->
+  <string name="debug_tool_start_button">Пачаць</string>
   <!-- Debug tool - Main message shown to the user when starting up the debug tool [CHAR LIMIT=NONE] -->
   <!-- Debug tool - email subject [CHAR LIMIT=NONE] -->
   <!-- Debug tool - email subject [CHAR LIMIT=NONE] -->
