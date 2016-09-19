@@ -19,8 +19,10 @@
   <!-- Temporary Calendar name to use before we have the calendar name from the server -->
   <!-- Caption on secret calendar info -->
   <!-- Error message for secret calendar info -->
+  <string name="calendar_info_error">Eraro</string>
   <!-- No calendars message for secret calendar info -->
   <!-- Event count message for secret calendar info -->
+  <string name="calendar_info_events">Eventoj: <xliff:g id="events">%1$d</xliff:g></string>
   <!-- Event and dirty event count message for secret calendar info -->
   <!-- What to show in messaging that refers to this provider, e.g. AccountSyncSettings -->
   <!-- Debug tool - dialog - delete file now [CHAR LIMIT=NONE] -->
