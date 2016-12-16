@@ -20,10 +20,13 @@
   <!-- [CHAR LIMIT=NONE] Boot message while upgrading calendar. -->
   <string name="upgrade_msg">يىلنامە ساندانىنى يۈكسەلدۈرۈۋاتىدۇ.</string>
   <!-- Temporary Calendar name to use before we have the calendar name from the server -->
+  <string name="calendar_default_name">كۆڭۈلدىكى</string>
   <!-- Caption on secret calendar info -->
   <string name="calendar_info">يىلنامە ئۇچۇرى</string>
   <!-- Error message for secret calendar info -->
+  <string name="calendar_info_error">خاتالىق</string>
   <!-- No calendars message for secret calendar info -->
+  <string name="calendar_info_no_calendars">يىلنامە يوق</string>
   <!-- Event count message for secret calendar info -->
   <string name="calendar_info_events">ھادىسە: <xliff:g id="events">%1$d</xliff:g></string>
   <!-- Event and dirty event count message for secret calendar info -->
